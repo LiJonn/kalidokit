@@ -1,4 +1,5 @@
 import * as Kalidokit from "../dist";
+
 //Import Helper Functions from Kalidokit
 const remap = Kalidokit.Utils.remap;
 const clamp = Kalidokit.Utils.clamp;
@@ -51,8 +52,13 @@ animate();
 const loader = new THREE.GLTFLoader();
 loader.crossOrigin = "anonymous";
 // Import model from URL, add your own model here
+
+
 loader.load(
-    "https://cdn.glitch.com/29e07830-2317-4b15-a044-135e73c7f840%2FAshtra.vrm?v=1630342336981",
+    "../models/Nolan-VRM-with-cape-T-2.vrm",
+    // "../models/ixia-13.vrm",
+    // "https://stgimg.pmadvisors.my/media/file/swSTraXmrvsLQXef9kEEbR/model.vrm",
+    //"https://cdn.glitch.com/29e07830-2317-4b15-a044-135e73c7f840%2FAshtra.vrm?v=1630342336981",
 
     (gltf) => {
         THREE.VRMUtils.removeUnnecessaryJoints(gltf.scene);
@@ -115,10 +121,11 @@ const rigFace = (riggedFace) => {
 
     // Simple example without winking. Interpolate based on old blendshape, then stabilize blink with `Kalidokit` helper function.
     // for VRM, 1 is closed, 0 is open.
-    riggedFace.eye.l = lerp(clamp(1 - riggedFace.eye.l, 0, 1), Blendshape.getValue(PresetName.Blink), 0.5);
-    riggedFace.eye.r = lerp(clamp(1 - riggedFace.eye.r, 0, 1), Blendshape.getValue(PresetName.Blink), 0.5);
+    riggedFace.eye.l = lerp(clamp(1 - riggedFace.eye.l, 0, 1), Blendshape.getValue(PresetName.BlinkL), 0.5);
+    riggedFace.eye.r = lerp(clamp(1 - riggedFace.eye.r, 0, 1), Blendshape.getValue(PresetName.BlinkR), 0.5);
     riggedFace.eye = Kalidokit.Face.stabilizeBlink(riggedFace.eye, riggedFace.head.y);
-    Blendshape.setValue(PresetName.Blink, riggedFace.eye.l);
+    Blendshape.setValue(PresetName.BlinkL, riggedFace.eye.l);
+    Blendshape.setValue(PresetName.BlinkR, riggedFace.eye.r);
 
     // Interpolate and set mouth blendshapes
     Blendshape.setValue(PresetName.I, lerp(riggedFace.mouth.shape.I, Blendshape.getValue(PresetName.I), 0.5));
@@ -165,6 +172,7 @@ const animateVRM = (vrm, results) => {
         rigFace(riggedFace);
     }
 
+    return;
     // Animate Pose
     if (pose2DLandmarks && pose3DLandmarks) {
         riggedPose = Kalidokit.Pose.solve(pose3DLandmarks, pose2DLandmarks, {
